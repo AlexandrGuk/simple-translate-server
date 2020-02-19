@@ -1,6 +1,6 @@
 {
   "name": "simple-translater-server",
-  "version": "1.0",
+  "version": "1.00.00",
   "description": "",
   "main": "translater.js",
   "scripts": {
