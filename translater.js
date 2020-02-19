@@ -1,4 +1,5 @@
 const http = require('http');
+const PORT = process.env.PORT || 5000;
 const fetch = require('node-fetch');
 
 http.createServer(async (request, response) => {
@@ -23,7 +24,7 @@ http.createServer(async (request, response) => {
             return;
         }
     });
-}).listen(3000, "localhost", () => console.log("started server"));
+}).listen(PORT, () => console.log("started server"));
 
 async function getTranslateFromGoogle(text) {
     const encodedText = encodeURIComponent(text);
