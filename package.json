@@ -1,8 +1,8 @@
 {
   "name": "simple-translater-server",
-  "version": "1.00.00",
-  "description": "",
-  "main": "translater.js",
+  "version": "1.0.1",
+  "description": "simple translator server",
+  "main": "translator.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
