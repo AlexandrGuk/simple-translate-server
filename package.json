@@ -4,7 +4,7 @@
   "description": "simple translator server",
   "main": "translator.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "translator.js"
   },
   "keywords": [],
   "author": "Alexander Guk",
