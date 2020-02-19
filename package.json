@@ -3,9 +3,6 @@
   "version": "1.0.1",
   "description": "simple translator server",
   "main": "translator.js",
-  "scripts": {
-    "start": "translator.js"
-  },
   "keywords": [],
   "author": "Alexander Guk",
   "license": "ISC",
