@@ -2,7 +2,9 @@
   "name": "simple-translater-server",
   "version": "1.0.1",
   "description": "simple translator server",
-  "main": "translator.js",
+  "scripts": {
+    "start": "node translator.js"
+  },
   "keywords": [],
   "author": "Alexander Guk",
   "license": "ISC",
