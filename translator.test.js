@@ -70,6 +70,25 @@ test('requires token when configured', async () => {
     });
 });
 
+test('premium uses its own translator', async () => {
+    await withServer({
+        translate: async () => ({ translation: 'обычный', detected: 'en' }),
+        translatePremium: async () => ({ translation: 'премиум', detected: 'en' }),
+    }, async (base) => {
+        const response = await fetch(`${base}/premium`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text: 'hello' }),
+        });
+        assert.equal(response.status, 200);
+        assert.deepEqual(await response.json(), {
+            translation: 'премиум',
+            detected: 'en',
+            provider: 'premium',
+        });
+    });
+});
+
 test('translates through Google', async () => {
     await withServer({}, async (base) => {
         const response = await fetch(base, {

@@ -69,6 +69,7 @@ function readText(body) {
 
 async function createServer(options = {}) {
     const translate = options.translate || translateGoogle;
+    const translatePremium = options.translatePremium || translate;
     const token = options.token !== undefined ? options.token : TOKEN;
     const app = Fastify({
         logger: options.logger ?? false,
@@ -135,27 +136,30 @@ async function createServer(options = {}) {
 
     app.get('/health', async () => ({ ok: true }));
 
-    async function translateRoute(request, reply) {
-        const parsed = readText(request.body);
-        const text = parsed.text.trim();
-        if (!text) {
-            reply.code(400).send({ error: 'empty' });
-            return;
-        }
-        if (text.length > MAX_TEXT) {
-            reply.code(413).send({ error: 'too_large' });
-            return;
-        }
-        const result = await translate(text, normalizeTarget(parsed.target));
-        if (!result || !result.translation) {
-            reply.code(502).send({ error: 'translate_failed' });
-            return;
-        }
-        return result;
+    function makeRoute(engine, providerName) {
+        return async function translateRoute(request, reply) {
+            const parsed = readText(request.body);
+            const text = parsed.text.trim();
+            if (!text) {
+                reply.code(400).send({ error: 'empty' });
+                return;
+            }
+            if (text.length > MAX_TEXT) {
+                reply.code(413).send({ error: 'too_large' });
+                return;
+            }
+            const result = await engine(text, normalizeTarget(parsed.target));
+            if (!result || !result.translation) {
+                reply.code(502).send({ error: 'translate_failed' });
+                return;
+            }
+            return providerName ? { ...result, provider: providerName } : result;
+        };
     }
 
-    app.post('/', translateRoute);
-    app.post('/translate', translateRoute);
+    app.post('/', makeRoute(translate));
+    app.post('/translate', makeRoute(translate));
+    app.post('/premium', makeRoute(translatePremium, 'premium'));
 
     return app;
 }
