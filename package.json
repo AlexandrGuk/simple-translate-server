@@ -1,14 +1,15 @@
 {
   "name": "simple-translater-server",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "simple translator server",
   "scripts": {
-    "start": "node translator.js"
+    "start": "node translator.js",
+    "test": "node --test translator.test.js"
+  },
+  "engines": {
+    "node": ">=18"
   },
   "keywords": [],
   "author": "Alexander Guk",
-  "license": "ISC",
-  "dependencies": {
-    "node-fetch": "^2.6.0"
-  }
+  "license": "ISC"
 }
