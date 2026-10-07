@@ -2,25 +2,13 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const { createServer } = require('./translator');
 
-function listen(server) {
-    return new Promise((resolve) => {
-        server.listen(0, '127.0.0.1', () => resolve(server.address().port));
-    });
-}
-
-function close(server) {
-    return new Promise((resolve, reject) => {
-        server.close((error) => (error ? reject(error) : resolve()));
-    });
-}
-
 async function withServer(options, run) {
-    const server = createServer(options);
-    const port = await listen(server);
+    const app = await createServer({ rateLimit: false, ...options });
+    const address = await app.listen({ port: 0, host: '127.0.0.1' });
     try {
-        await run(`http://127.0.0.1:${port}`);
+        await run(address);
     } finally {
-        await close(server);
+        await app.close();
     }
 }
 

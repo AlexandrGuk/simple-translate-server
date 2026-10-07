@@ -1,0 +1,5 @@
+node_modules
+.git
+translator.test.js
+deploy
+README.md
