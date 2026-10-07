@@ -1,4 +1,5 @@
 const http = require('http');
+const { execFile } = require('child_process');
 
 const PORT = Number(process.env.PORT) || 5000;
 const HOST = process.env.HOST || '0.0.0.0';
@@ -53,7 +54,8 @@ function normalizeTarget(target) {
     return /^[a-z]{2}(-[a-z]{2})?$/i.test(target) ? target.toLowerCase() : 'ru';
 }
 
-async function translateGoogle(text, target) {
+// Google rejects Node's TLS fingerprint, so the request goes out through curl.
+function translateGoogle(text, target) {
     const url = new URL('https://translate.googleapis.com/translate_a/single');
     url.searchParams.set('client', 'gtx');
     url.searchParams.set('sl', 'auto');
@@ -62,20 +64,35 @@ async function translateGoogle(text, target) {
     url.searchParams.set('dj', '1');
     url.searchParams.set('q', text);
 
-    const response = await fetch(url, {
-        headers: { 'User-Agent': 'Mozilla/5.0' },
-        signal: AbortSignal.timeout(TIMEOUT_MS),
+    return new Promise((resolve) => {
+        execFile('curl', [
+            '-sS',
+            '--max-time', String(Math.ceil(TIMEOUT_MS / 1000)),
+            '-A', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
+            '-H', 'Accept: */*',
+            '-w', '\n%{http_code}',
+            url.toString(),
+        ], { timeout: TIMEOUT_MS + 1000, maxBuffer: 1024 * 1024 }, (error, stdout) => {
+            if (error || !stdout) {
+                resolve(null);
+                return;
+            }
+            const lines = stdout.replace(/\s+$/, '').split('\n');
+            const status = Number(lines.pop());
+            if (status !== 200) {
+                resolve(null);
+                return;
+            }
+            try {
+                const data = JSON.parse(lines.join('\n'));
+                const sentences = Array.isArray(data.sentences) ? data.sentences : [];
+                const translation = sentences.map((sentence) => sentence.trans || '').join('');
+                resolve(translation ? { translation, detected: data.src || '' } : null);
+            } catch {
+                resolve(null);
+            }
+        });
     });
-    if (!response.ok) {
-        return null;
-    }
-    const data = await response.json();
-    const sentences = Array.isArray(data.sentences) ? data.sentences : [];
-    const translation = sentences.map((sentence) => sentence.trans || '').join('');
-    if (!translation) {
-        return null;
-    }
-    return { translation, detected: data.src || '' };
 }
 
 function createServer(options = {}) {

@@ -6,6 +6,6 @@ HTTP-прокси к Google Translate для расширения Simple Transla
 
 `GET /health` отвечает `{"ok":true}`.
 
-Нужен Node.js 18+. Запуск: `npm start`. Порт задаётся `PORT` (по умолчанию 5000). Если задан `TRANSLATE_TOKEN`, запрос должен содержать заголовок `X-Translate-Token`.
+Нужны Node.js 18+ и `curl`. Запрос к Google идёт через `curl`: Google отклоняет TLS-отпечаток Node.js. Запуск: `npm start`. Порт задаётся `PORT` (по умолчанию 5000). Если задан `TRANSLATE_TOKEN`, запрос должен содержать заголовок `X-Translate-Token`.
 
 Юнит systemd: `deploy/simple-translate.service`.
